@@ -1,1 +1,0 @@
-/home/blackmath/projects/homeplatform/build/CMakeFiles/homeplatform.dir
