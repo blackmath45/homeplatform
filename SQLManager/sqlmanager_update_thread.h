@@ -18,8 +18,7 @@ private :
 	string sConnectionString;
 	cqueue<datatag> *cqReadChange;
 	PGconn *conn;
-	string sQuery;	
-	
+		
 	pthread_t thread_id;
 	void threadFunction(void* args);
 	
