@@ -191,8 +191,8 @@ void mbserver_thread::threadFunction(void* args)
 				
 				if (flagSendMessage > 0)
 				{
-					//TODO Sauvegarder valeur
-					ldatatagIter->ToString();
+					cqReadChange->push(*ldatatagIter);
+					//ldatatagIter->ToString();
 				}
 				//---------------------------------------------------------------------------------					
 			}
