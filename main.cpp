@@ -4,6 +4,7 @@
 #include "adam6x50/adam6x50_thread.h"
 #include "mbserver/mbserver_thread.h"
 #include "SQLManager/sqlmanager_update_thread.h"
+#include "SQLManager/sqlmanager_writes_thread.h"
 #include "datastruct/adamtag.h"
 
 int main(int argc, char **argv)
@@ -21,6 +22,7 @@ int main(int argc, char **argv)
 	adam6x50_thread *adam6250 = new adam6x50_thread();
 	mbserver_thread *mbserver = new mbserver_thread();
 	sqlmanager_update_thread *sqlupdate = new sqlmanager_update_thread();
+	sqlmanager_writes_thread *sqlwrite = new sqlmanager_writes_thread();
 
 	mbserver->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
 	mbserver->SetIP("***REMOVED***");
@@ -40,8 +42,13 @@ int main(int argc, char **argv)
 	sqlupdate->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
 	sqlupdate->SetQueueReadChange(&cqReadChange);
 	sqlupdate->ThreadStart();	
+
+	sqlwrite->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
+	sqlwrite->SetQueueWriteRequest(&cqWriteRequest);
+	sqlwrite->ThreadStart();	
 	
 	
+	sqlwrite->ThreadJoin();	
 	sqlupdate->ThreadJoin();
 	adam6250->ThreadJoin();
 	mbserver->ThreadJoin();
