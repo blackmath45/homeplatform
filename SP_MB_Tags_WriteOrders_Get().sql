@@ -8,7 +8,7 @@ $BODY$DECLARE
 
 BEGIN
 
-	RETURN QUERY
+	--RETURN QUERY
 
 	SELECT	"MB_Tags_WriteOrders"."ID", 
 		"MB_Tags_WriteOrders"."ModBus_Address", 
@@ -31,4 +31,3 @@ END$BODY$
   ROWS 1000;
 ALTER FUNCTION "SP_MB_Tags_WriteOrders_Get"()
   OWNER TO postgres;
- 
