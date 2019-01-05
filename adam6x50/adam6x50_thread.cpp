@@ -138,6 +138,8 @@ void adam6x50_thread::threadFunction(void* args)
 		{
 			msgrecv = 1;
 		}
+
+		sleep(1);
 		
 		/*
 		while (mqTagAdamInputRequestAttr.mq_curmsgs > 0)
@@ -282,5 +284,6 @@ void adam6x50_thread::threadFunction(void* args)
 
 	std::clog << kLogNotice << "adam6x50_thread : end of thread" << std::endl;
 	
+	pthread_exit(NULL);
 	return;
 }

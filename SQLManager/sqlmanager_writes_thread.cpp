@@ -53,7 +53,7 @@ void sqlmanager_writes_thread::threadFunction(void* args)
 			//*****************************************************************************************
 			// Récupération
 			//*****************************************************************************************
-			sQuery = "SELECT \"SP_MB_Tags_WriteOrders_Get\"();";
+			sQuery = "SELECT \"ID\", \"ModBus_Address\", \"ModBus_Type\", \"Valeur\" FROM \"SP_MB_Tags_WriteOrders_Get\"();";
 			result = PQexec(conn, sQuery.c_str());
 			if (PQresultStatus(result) != PGRES_TUPLES_OK)
 			{
@@ -71,7 +71,6 @@ void sqlmanager_writes_thread::threadFunction(void* args)
 					tmp.SetFromDBMBAddress(PQgetvalue(result, i, 1));
 					tmp.SetFromDBMBType(PQgetvalue(result, i, 2));
 					tmp.SetFromDBValue(PQgetvalue(result, i, 3));
-					tmp.SetFromDBQuality(0);
 					
 					ldatatag.insert(ldatatag.end(),tmp);
 				}
@@ -85,7 +84,7 @@ void sqlmanager_writes_thread::threadFunction(void* args)
 			for(list<datatag>::iterator ldatatagIter = ldatatag.begin(); ldatatagIter != ldatatag.end(); ldatatagIter ++)
 			{
 				cqWriteRequest->push(*ldatatagIter);
-				
+
 				ostringstream osID;
 
 				osID << ldatatagIter->GetID();
@@ -101,7 +100,9 @@ void sqlmanager_writes_thread::threadFunction(void* args)
 				{
 					PQclear(result);
 				}	
-			}				
+			}
+			
+			ldatatag.clear();
 			
 			sleep(1);
 		}
@@ -111,5 +112,6 @@ void sqlmanager_writes_thread::threadFunction(void* args)
 
 	std::clog << kLogNotice << "sqlmanager_writes_thread : end of thread" << std::endl;
 	
+	pthread_exit(NULL);
 	return;
 }

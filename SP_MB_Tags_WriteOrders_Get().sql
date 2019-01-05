@@ -8,12 +8,12 @@ $BODY$DECLARE
 
 BEGIN
 
-	--RETURN QUERY
+	RETURN QUERY
 
 	SELECT	"MB_Tags_WriteOrders"."ID", 
 		"MB_Tags_WriteOrders"."ModBus_Address", 
 		"MB_Tags_WriteOrders"."ModBus_Type",
-		"MB_Tags_WriteOrders"."Value"
+		"MB_Tags_WriteOrders"."Value" AS "Valeur"
 	  FROM "MB_Tags_WriteOrders"
 	  LEFT JOIN "EXT_Incoming" ON "MB_Tags_WriteOrders"."ID_Incoming" = "EXT_Incoming"."ID" AND "MB_Tags_WriteOrders"."Source" = 2
 	  LEFT JOIN "SMS_Incoming" ON "MB_Tags_WriteOrders"."ID_Incoming" = "SMS_Incoming"."ID" AND "MB_Tags_WriteOrders"."Source" = 1

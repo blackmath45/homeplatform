@@ -7,6 +7,7 @@
 #include "adam6x50_conf.h"
 #include "../cqueue/cqueue.h"
 #include "../datastruct/adamtag.h"
+#include <unistd.h>
 
 #define BUFLEN 512  //Max length of buffer
 #define PORT 1025   //The port on which to listen for incoming data

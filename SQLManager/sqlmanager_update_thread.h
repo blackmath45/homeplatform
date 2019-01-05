@@ -18,6 +18,9 @@ private :
 	string sConnectionString;
 	cqueue<datatag> *cqReadChange;
 	PGconn *conn;
+	
+	pthread_mutex_t *sqlmanager_update_thread_mutex;
+	pthread_cond_t *sqlmanager_update_thread_condition;
 		
 	pthread_t thread_id;
 	void threadFunction(void* args);
@@ -25,12 +28,16 @@ private :
 	struct threadArgsStruct
 	{
 		char *cConnectionString;
-		cqueue<datatag> *cqReadChange;		
+		cqueue<datatag> *cqReadChange;
+		pthread_mutex_t *sqlmanager_update_thread_mutex;
+		pthread_cond_t *sqlmanager_update_thread_condition;
 	} thargs;
 
 public:
 	void SetConnectionString(string sConnectionString);	
 	void SetQueueReadChange(cqueue<datatag> *cqReadChange);
+	void SetThreadMutex(pthread_mutex_t *sqlmanager_update_thread_mutex);
+	void SetThreadCondition(pthread_cond_t *sqlmanager_update_thread_condition);
 	static void *ThreadWrapper(void *thisPtr)
 	{
 		((sqlmanager_update_thread*) thisPtr)->threadFunction(thisPtr);

@@ -2,12 +2,18 @@
 
 void sqlmanager_update_thread::SetConnectionString(string sConnectionString) { this->sConnectionString = sConnectionString; }
 void sqlmanager_update_thread::SetQueueReadChange(cqueue<datatag> *cqReadChange) { this->cqReadChange = cqReadChange; }
+
+void sqlmanager_update_thread::SetThreadMutex(pthread_mutex_t *sqlmanager_update_thread_mutex) { this->sqlmanager_update_thread_mutex = sqlmanager_update_thread_mutex; }
+void sqlmanager_update_thread::SetThreadCondition(pthread_cond_t *sqlmanager_update_thread_condition) { this->sqlmanager_update_thread_condition = sqlmanager_update_thread_condition; }
 	
 void sqlmanager_update_thread::ThreadStart()
 {
 	thargs.cConnectionString = strdup(this->sConnectionString.c_str());
 
-	thargs.cqReadChange = this->cqReadChange;	
+	thargs.cqReadChange = this->cqReadChange;
+
+	thargs.sqlmanager_update_thread_mutex = this->sqlmanager_update_thread_mutex;
+	thargs.sqlmanager_update_thread_condition = this->sqlmanager_update_thread_condition;	
 
 	std::clog << kLogNotice << "sqlmanager_update_thread : starting thread" << std::endl;
 	pthread_create(&this->thread_id, NULL, &sqlmanager_update_thread::ThreadWrapper, (void *)&thargs);
@@ -31,6 +37,9 @@ void sqlmanager_update_thread::threadFunction(void* args)
 	string sConnectionString(cConnectionString);	
 
 	cqueue<datatag> *cqReadChange = (cqueue<datatag> *)thargs->cqReadChange;
+	
+	pthread_mutex_t *sqlmanager_update_thread_mutex = (pthread_mutex_t *)thargs->sqlmanager_update_thread_mutex;
+	pthread_cond_t *sqlmanager_update_thread_condition = (pthread_cond_t *)thargs->sqlmanager_update_thread_condition;
 	//************************************
 	
 	PGresult   *result;
@@ -47,12 +56,16 @@ void sqlmanager_update_thread::threadFunction(void* args)
 	{
 		while(1)
 		{
+			pthread_mutex_lock(sqlmanager_update_thread_mutex);
+			pthread_cond_wait(sqlmanager_update_thread_condition, sqlmanager_update_thread_mutex);
+			pthread_mutex_unlock(sqlmanager_update_thread_mutex);
+			
 			while(cqReadChange->size() > 0)
 			{
 				datatag tmp;
 				cqReadChange->pop(tmp);
-				
-				//printf("---------- Save Value ----------\n");
+				printf("****");
+				tmp.ToString();
 				
 				ostringstream osID;
 				ostringstream osMBAddress;
@@ -76,6 +89,8 @@ void sqlmanager_update_thread::threadFunction(void* args)
 					PQclear(result);
 				}
 			}
+			
+			//usleep(100000);
 		}
 	}
 	
@@ -83,5 +98,6 @@ void sqlmanager_update_thread::threadFunction(void* args)
 
 	std::clog << kLogNotice << "sqlmanager_update_thread : end of thread" << std::endl;
 	
+	pthread_exit(NULL);
 	return;
 }

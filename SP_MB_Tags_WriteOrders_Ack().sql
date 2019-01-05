@@ -1,4 +1,3 @@
- 
 -- Function: "SP_MB_Tags_WriteOrders_Ack"(integer)
 
 -- DROP FUNCTION "SP_MB_Tags_WriteOrders_Ack"(integer);
@@ -10,8 +9,8 @@ $BODY$DECLARE
 BEGIN
 
 	UPDATE "MB_Tags_WriteOrders"
-	SET "MB_Tags_WriteOrders"."DoneDT"=current_timestamp, "MB_Tags_WriteOrders"."DoneStatus"=10
-	WHERE "MB_Tags_WriteOrders"."ID"= id;
+	SET "DoneDT"=current_timestamp, "DoneStatus"=10
+	WHERE "ID"= id;
 	
 END$BODY$
   LANGUAGE plpgsql VOLATILE

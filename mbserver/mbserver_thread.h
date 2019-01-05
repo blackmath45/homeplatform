@@ -23,6 +23,9 @@ private :
 	cqueue<datatag> *cqReadChange;
 	cqueue<datatag> *cqWriteRequest;	
 	
+	pthread_mutex_t *sqlmanager_update_thread_mutex;
+	pthread_cond_t *sqlmanager_update_thread_condition;
+	
 	pthread_t thread_id;
 	void threadFunction(void* args);
 	
@@ -34,7 +37,9 @@ private :
 		cqueue<adamtag> *cqAdamResponseFromPLC;
 		cqueue<adamtag> *cqAdamWriteToPLC;
 		cqueue<datatag> *cqReadChange;
-		cqueue<datatag> *cqWriteRequest;			
+		cqueue<datatag> *cqWriteRequest;
+		pthread_mutex_t *sqlmanager_update_thread_mutex;
+		pthread_cond_t *sqlmanager_update_thread_condition;
 	} thargs;
 
 public:
@@ -45,6 +50,8 @@ public:
 	void SetQueueAdamWriteToPLC(cqueue<adamtag> *cqAdamWriteToPLC);
 	void SetQueueReadChange(cqueue<datatag> *cqReadChange);
 	void SetQueueWriteRequest(cqueue<datatag> *cqWriteRequest);
+	void SetThreadMutex(pthread_mutex_t *sqlmanager_update_thread_mutex);
+	void SetThreadCondition(pthread_cond_t *sqlmanager_update_thread_condition);
 	static void *ThreadWrapper(void *thisPtr)
 	{
 		((mbserver_thread*) thisPtr)->threadFunction(thisPtr);

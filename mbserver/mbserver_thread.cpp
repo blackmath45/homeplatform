@@ -7,6 +7,9 @@ void mbserver_thread::SetQueueAdamResponseFromPLC(cqueue<adamtag> *cqAdamRespons
 void mbserver_thread::SetQueueAdamWriteToPLC(cqueue<adamtag> *cqAdamWriteToPLC) { this->cqAdamWriteToPLC = cqAdamWriteToPLC; }
 void mbserver_thread::SetQueueReadChange(cqueue<datatag> *cqReadChange) { this->cqReadChange = cqReadChange; }
 void mbserver_thread::SetQueueWriteRequest(cqueue<datatag> *cqWriteRequest) { this->cqWriteRequest = cqWriteRequest; }
+
+void mbserver_thread::SetThreadMutex(pthread_mutex_t *sqlmanager_update_thread_mutex) { this->sqlmanager_update_thread_mutex = sqlmanager_update_thread_mutex; }
+void mbserver_thread::SetThreadCondition(pthread_cond_t *sqlmanager_update_thread_condition) { this->sqlmanager_update_thread_condition = sqlmanager_update_thread_condition; }
 	
 void mbserver_thread::ThreadStart()
 {
@@ -19,6 +22,9 @@ void mbserver_thread::ThreadStart()
 
 	thargs.cqReadChange = this->cqReadChange;	
 	thargs.cqWriteRequest = this->cqWriteRequest;
+	
+	thargs.sqlmanager_update_thread_mutex = this->sqlmanager_update_thread_mutex;
+	thargs.sqlmanager_update_thread_condition = this->sqlmanager_update_thread_condition;
 
 	std::clog << kLogNotice << "mbserver_thread : starting thread" << std::endl;
 	pthread_create(&this->thread_id, NULL, &mbserver_thread::ThreadWrapper, (void *)&thargs);
@@ -48,7 +54,10 @@ void mbserver_thread::threadFunction(void* args)
 	cqueue<adamtag> *cqAdamWriteToPLC = (cqueue<adamtag> *)thargs->cqAdamWriteToPLC;
 
 	cqueue<datatag> *cqReadChange = (cqueue<datatag> *)thargs->cqReadChange;
-	cqueue<datatag> *cqWriteRequest = (cqueue<datatag> *)thargs->cqWriteRequest;	
+	cqueue<datatag> *cqWriteRequest = (cqueue<datatag> *)thargs->cqWriteRequest;
+	
+	pthread_mutex_t *sqlmanager_update_thread_mutex = (pthread_mutex_t *)thargs->sqlmanager_update_thread_mutex;
+	pthread_cond_t *sqlmanager_update_thread_condition = (pthread_cond_t *)thargs->sqlmanager_update_thread_condition;
 	//************************************
 		
 	modbus_t *ctx;
@@ -120,12 +129,10 @@ void mbserver_thread::threadFunction(void* args)
 						MBLength = 1;
 						break;
 					
-					/*
 					//DINT
-					case 1:
-						MBLength = 2;					
-						break;
-					*/
+					//case 1:
+					//	MBLength = 2;					
+					//	break;
 					
 					//FLOAT
 					case 2:
@@ -191,12 +198,15 @@ void mbserver_thread::threadFunction(void* args)
 				
 				if (flagSendMessage > 0)
 				{
+					pthread_mutex_lock(sqlmanager_update_thread_mutex);
 					cqReadChange->push(*ldatatagIter);
-					//ldatatagIter->ToString();
+					ldatatagIter->ToString();
+					pthread_cond_signal(sqlmanager_update_thread_condition);
+					pthread_mutex_unlock(sqlmanager_update_thread_mutex);
 				}
 				//---------------------------------------------------------------------------------					
 			}
-			
+
 			/* --------------- Tags Adam --------------- */
 			//TODO : améliorer le séquencement ?
 			while(cqAdamReadToPLC->size() > 0)
@@ -230,7 +240,6 @@ void mbserver_thread::threadFunction(void* args)
 			{
 				datatag tmp;
 				cqWriteRequest->pop(tmp);
-				
 				
 				ostringstream os;
 				switch(tmp.GetMBType())
@@ -268,5 +277,6 @@ void mbserver_thread::threadFunction(void* args)
 
 	std::clog << kLogNotice << "mbserver_thread : end of thread" << std::endl;
 	
+	pthread_exit(NULL);
 	return;
 }
