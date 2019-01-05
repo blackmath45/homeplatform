@@ -133,7 +133,7 @@ void adam6x50_thread::threadFunction(void* args)
 		
 		if ((recv_len = recvfrom(s, recvbuff, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) == -1)
 		{
-			std::clog << kLogWarning << "adam6x50_thread : recvfrom() failed " << std::endl;
+			//std::clog << kLogWarning << "adam6x50_thread : recvfrom() failed " << std::endl;
 			//return NULL;			
 		}
 		else
@@ -218,6 +218,8 @@ void adam6x50_thread::threadFunction(void* args)
 		}
 		
 		msgrecv = 0;
+		
+		//TODO : envoyer le comcheck !!!!!!!!!!!!!!!!!!!!!!!!!! (dans Test PW par exemple ?)
 		
 		sleep(1);
 	}
