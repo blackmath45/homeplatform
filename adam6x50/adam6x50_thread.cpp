@@ -97,6 +97,8 @@ void adam6x50_thread::threadFunction(void* args)
 	
 	while(1)
 	{
+		comcheck++;
+		
 		/* --------------- Response Lecture Input et Output --------------- */
 		while(cqResponseFromPLC->size() > 0)
 		{
@@ -131,7 +133,7 @@ void adam6x50_thread::threadFunction(void* args)
 		
 		if ((recv_len = recvfrom(s, recvbuff, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) == -1)
 		{
-			//perror("Error : recvfrom() failed !\n");
+			std::clog << kLogWarning << "adam6x50_thread : recvfrom() failed " << std::endl;
 			//return NULL;			
 		}
 		else
@@ -139,51 +141,9 @@ void adam6x50_thread::threadFunction(void* args)
 			msgrecv = 1;
 		}
 
-		sleep(1);
-		
-		/*
-		while (mqTagAdamInputRequestAttr.mq_curmsgs > 0)
-		{
-			ssize_t len_recv;
-			len_recv = mq_receive(mqTagAdamInputRequest, mqTagAdamInputRequestBuffer, mqTagAdamInputRequestBufferLength, NULL);
-			if (len_recv == -1)
-			{
-				perror("ADAM6250 : mq_receive : ");
-				return;
-			}
-						
-			if(len_recv == sizeof(sWriteValue))
-			{
-				sWriteValue tmp;
-				memcpy(&tmp, mqTagAdamInputRequestBuffer, sizeof(tmp));	
-				
-				for(j = 0; j < lengthTagList; j++)
-				{
-						if(ptrTagList[j].PLC_ModBus_Address == tmp.PLC_ModBus_Address)
-						{
-							if(ptrTagList[j].RO_or_RW == 1)
-							{
-								if(ptrTagList[j].DEVICE_ModBus_Address == 1)
-									istate = tmp.PLC_ModBus_Value;
-							}
-							break;
-						}		
-				}	
-			}
-					
-			if (mq_getattr(mqTagAdamInputRequest, &mqTagAdamInputRequestAttr) != 0) 
-			{
-				perror("mq_getattr");
-				return;
-			}				
-		}		*/	
-
-		/*
 		if (msgrecv > 0)
 		{
 			comcheck++;
-			
-			//ENVOI comcheck à API via modbus
 		
 			//printf("Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
 			//printf("Data: %s\n" , recvbuff);
@@ -196,8 +156,8 @@ void adam6x50_thread::threadFunction(void* args)
 
 				if (sendto(s, sendbuff, send_len, 0, (struct sockaddr*) &si_other, slen) == -1)
 				{
-					perror("Error : sendto() failed !\n");
-					return NULL;	
+					std::clog << kLogWarning << "adam6x50_thread : $01PW0 sendbuff() error " << std::endl;
+					//return NULL;	
 				}
 			}
 			
@@ -212,8 +172,8 @@ void adam6x50_thread::threadFunction(void* args)
 
 				if (sendto(s, sendbuff, send_len, 0, (struct sockaddr*) &si_other, slen) == -1)
 				{
-					perror("Error : sendto() failed !\n");
-					return NULL;	
+					std::clog << kLogWarning << "adam6x50_thread : $016 sendbuff() error " << std::endl;
+					//return NULL;	
 				}
 			}
 			
@@ -244,39 +204,23 @@ void adam6x50_thread::threadFunction(void* args)
 
 				if (sendto(s, sendbuff, send_len, 0, (struct sockaddr*) &si_other, slen) == -1)
 				{
-					perror("Error : sendto() failed !\n");
-					return NULL;	
+					std::clog << kLogWarning << "adam6x50_thread : #01 sendbuff() error " << std::endl;
+					//return NULL;	
 				}
-				
-				for(indexTagList = 0; indexTagList < lengthTagList; indexTagList++)
-				{			
-					if(ptrTagList[indexTagList].DEVICE_ModBus_Address == 2)
-					{
-						sReadValue tmp;
 
-						tmp.PLC_ModBus_Address = ptrTagList[indexTagList].PLC_ModBus_Address;
-						tmp.PLC_ModBus_Value = ostate;
-						
-						mq_send(mqTagReadUpdate, (const char *) &tmp, sizeof(tmp), 0);	
-
-						break;
-					}
-				}			
+				adamtag queryOuput;	
+				queryOuput.SetQueryType(1);
+				queryOuput.SetMBAddress(conf->GetPLCMBAddress_Output());
+				queryOuput.SetValue(ostate);
+				cqWriteToPLC->push(queryOuput);
 			}		
 
-			//print details of the client/peer and the data received
-			//printf("Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
-			//printf("Data: %s\n" , recvbuff);
 		}
 		
 		msgrecv = 0;
-		*/
-		//printf("---------- MB ADAM6250 Tick ----------\n");
 		
-		/* --------------- Ecriture Output --------------- */
+		sleep(1);
 	}
-	
-	std::clog << kLogNotice << conf->GetPLCMBAddress_Com() << std::endl;
 	
 	//*****************************************************************************************
 	// Fin Gestion ADAM6x50

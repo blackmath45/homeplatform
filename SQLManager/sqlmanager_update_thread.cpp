@@ -64,8 +64,6 @@ void sqlmanager_update_thread::threadFunction(void* args)
 			{
 				datatag tmp;
 				cqReadChange->pop(tmp);
-				printf("****");
-				tmp.ToString();
 				
 				ostringstream osID;
 				ostringstream osMBAddress;

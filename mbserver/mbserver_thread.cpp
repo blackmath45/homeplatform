@@ -113,7 +113,6 @@ void mbserver_thread::threadFunction(void* args)
 			//*****************************************************************************************
 			// LECTURE
 			//*****************************************************************************************
-			
 			/* --------------- Tags classiques --------------- */
 			for(list<datatag>::iterator ldatatagIter = conf->GetList()->begin(); ldatatagIter != conf->GetList()->end(); ldatatagIter ++)
 			{
@@ -200,7 +199,7 @@ void mbserver_thread::threadFunction(void* args)
 				{
 					pthread_mutex_lock(sqlmanager_update_thread_mutex);
 					cqReadChange->push(*ldatatagIter);
-					ldatatagIter->ToString();
+					//ldatatagIter->ToString();
 					pthread_cond_signal(sqlmanager_update_thread_condition);
 					pthread_mutex_unlock(sqlmanager_update_thread_mutex);
 				}
@@ -236,6 +235,7 @@ void mbserver_thread::threadFunction(void* args)
 			//*****************************************************************************************
 			// ECRITURE
 			//*****************************************************************************************
+			/* --------------- Tags classiques --------------- */
 			while(cqWriteRequest->size() > 0)
 			{
 				datatag tmp;
@@ -264,7 +264,26 @@ void mbserver_thread::threadFunction(void* args)
 					std::clog << kLogWarning << "mbserver_thread : modbus_write_registers | " << modbus_strerror(errno) << std::endl;
 					ctxerror = -2;	
 				}			
-			}				
+			}
+			
+			/* --------------- Tags Adam --------------- */
+			//TODO : améliorer le séquencement ?
+			while(cqAdamWriteToPLC->size() > 0)
+			{
+				adamtag tmp;
+				cqAdamReadToPLC->pop(tmp);
+							
+				MBLength = 1;
+				tab_reg[0] = tmp.GetValue();
+				rc_write = modbus_write_registers(ctx, tmp.GetMBAddress(),  MBLength, tab_reg);
+				
+				if (rc_write == -1) 
+				{
+					std::clog << kLogWarning << "mbserver_thread : modbus_write_registers for Adam | " << modbus_strerror(errno) << std::endl;
+					ctxerror = -2;	
+				}	
+				
+			}
 			//*****************************************************************************************
 			
 			sleep(1);

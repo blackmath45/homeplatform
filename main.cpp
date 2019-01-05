@@ -47,8 +47,6 @@ int main(int argc, char **argv)
 	adam6250->SetQueueAdamWriteToPLC(&cqWriteToPLC);
 	adam6250->ThreadStart();
 	
-	//TODO : https://gist.github.com/itrobotics/4bdc417071f560b220ba
-	//TODO : pour éviter les sleep
 	sqlupdate->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
 	sqlupdate->SetQueueReadChange(&cqReadChange);
 	sqlupdate->SetThreadMutex(&sqlmanager_update_thread_mutex);
