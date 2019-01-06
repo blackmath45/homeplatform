@@ -212,7 +212,7 @@ void mbserver_thread::threadFunction(void* args)
 			{
 				adamtag tmp;
 				cqAdamReadToPLC->pop(tmp);
-							
+
 				rc_read = modbus_read_registers(ctx, tmp.GetMBAddress(), 1, tab_reg);
 
 				if (rc_read == -1) 
