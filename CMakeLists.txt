@@ -5,7 +5,7 @@ add_executable(homeplatform main.cpp datastruct/datatag.cpp datastruct/adamtag.c
 
 install(TARGETS homeplatform RUNTIME DESTINATION bin)
 
-target_link_libraries (homeplatform pq pthread modbus)
+target_link_libraries (homeplatform pq pthread modbus rt)
 
 add_subdirectory(adam6x50)
 add_subdirectory(log)
