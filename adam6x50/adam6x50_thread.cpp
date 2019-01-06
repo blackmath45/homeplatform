@@ -59,7 +59,9 @@ void adam6x50_thread::threadFunction(void* args)
 
 	conf->SetConnectionString(sConnectionString);
 	conf->LoadConf();
-
+	
+	timer tmr;
+	double tmrelapsed;
 	
 	//*****************************************************************************************
 	// Début Gestion ADAM6x50
@@ -94,10 +96,14 @@ void adam6x50_thread::threadFunction(void* args)
 	}
 
 	std::clog << kLogNotice << "adam6x50_thread : starting main loop" << std::endl;
-	
+    
+	tmr.reset();
+    
 	while(1)
 	{
 		comcheck++;
+		
+		tmrelapsed = tmr.elapsed();
 		
 		/* --------------- Response Lecture Input et Output --------------- */
 		while(cqResponseFromPLC->size() > 0)
@@ -215,6 +221,18 @@ void adam6x50_thread::threadFunction(void* args)
 				cqWriteToPLC->push(queryOuput);
 			}		
 
+		}
+		
+		
+		if (tmrelapsed > 10)
+		{
+			tmr.reset();
+			
+			adamtag queryComChek;	
+			queryComChek.SetQueryType(1);
+			queryComChek.SetMBAddress(conf->GetPLCMBAddress_Com());
+			queryComChek.SetValue(comcheck);
+			cqWriteToPLC->push(queryComChek);			
 		}
 		
 		msgrecv = 0;

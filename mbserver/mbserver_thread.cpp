@@ -271,7 +271,7 @@ void mbserver_thread::threadFunction(void* args)
 			while(cqAdamWriteToPLC->size() > 0)
 			{
 				adamtag tmp;
-				cqAdamReadToPLC->pop(tmp);
+				cqAdamWriteToPLC->pop(tmp);
 							
 				MBLength = 1;
 				tab_reg[0] = tmp.GetValue();
