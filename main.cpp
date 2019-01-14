@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	mbserver->SetThreadMutex(&sqlmanager_update_thread_mutex);
 	mbserver->SetThreadCondition(&sqlmanager_update_thread_condition);
 	mbserver->ThreadStart();
-	
+
 	adam6250->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
 	adam6250->SetQueueAdamReadToPLC(&cqReadToPLC);
 	adam6250->SetQueueAdamResponseFromPLC(&cqResponseFromPLC);

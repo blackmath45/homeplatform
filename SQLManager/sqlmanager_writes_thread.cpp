@@ -44,7 +44,7 @@ void sqlmanager_writes_thread::threadFunction(void* args)
 	if (PQstatus(this->conn) != CONNECTION_OK)
 	{
 		std::clog << kLogWarning << "sqlmanager_writes_thread : Connection to database failed | " << PQerrorMessage(conn) << std::endl;
-		PQfinish(this->conn);
+		//PQfinish(this->conn);
 	}
 	else
 	{
