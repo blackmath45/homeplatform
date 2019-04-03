@@ -30,8 +30,8 @@ int main(int argc, char **argv)
 	sqlmanager_update_thread *sqlupdate = new sqlmanager_update_thread();
 	sqlmanager_writes_thread *sqlwrite = new sqlmanager_writes_thread();
 
-	mbserver->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
-	mbserver->SetIP("***REMOVED***");
+	mbserver->SetConnectionString("host=localhost dbname=x sslmode=disable user=postgres password=x");
+	mbserver->SetIP("x.x.x.x");
 	mbserver->SetQueueAdamReadToPLC(&cqReadToPLC);
 	mbserver->SetQueueAdamResponseFromPLC(&cqResponseFromPLC);
 	mbserver->SetQueueAdamWriteToPLC(&cqWriteToPLC);
@@ -41,19 +41,19 @@ int main(int argc, char **argv)
 	mbserver->SetThreadCondition(&sqlmanager_update_thread_condition);
 	mbserver->ThreadStart();
 
-	adam6250->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
+	adam6250->SetConnectionString("host=localhost dbname=x sslmode=disable user=postgres password=x");
 	adam6250->SetQueueAdamReadToPLC(&cqReadToPLC);
 	adam6250->SetQueueAdamResponseFromPLC(&cqResponseFromPLC);
 	adam6250->SetQueueAdamWriteToPLC(&cqWriteToPLC);
 	adam6250->ThreadStart();
 	
-	sqlupdate->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
+	sqlupdate->SetConnectionString("host=localhost dbname=x sslmode=disable user=postgres password=x");
 	sqlupdate->SetQueueReadChange(&cqReadChange);
 	sqlupdate->SetThreadMutex(&sqlmanager_update_thread_mutex);
 	sqlupdate->SetThreadCondition(&sqlmanager_update_thread_condition);
 	sqlupdate->ThreadStart();	
 
-	sqlwrite->SetConnectionString("host=localhost ***REMOVED*** sslmode=disable user=postgres ***REMOVED***");
+	sqlwrite->SetConnectionString("host=localhost dbname=x sslmode=disable user=postgres password=x");
 	sqlwrite->SetQueueWriteRequest(&cqWriteRequest);
 	sqlwrite->ThreadStart();	
 	
